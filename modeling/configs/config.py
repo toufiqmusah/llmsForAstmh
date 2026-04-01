@@ -12,7 +12,7 @@ LOGS_DIR = PROJECT_ROOT / "logs"
 MODELS_DIR = PROJECT_ROOT / "models"
 
 # Source data
-SOURCE_DATA_FILE = Path("/Users/toufiq/Desktop/llmsForAstmh/data/materialsFor2026Version/combinedAbstractContents_2023_2024_2025_19mar2026.xlsx")
+SOURCE_DATA_FILE = Path("llmsForAstmh/data/materialsFor2026Version/combinedAbstractContents_2023_2024_2025_19mar2026.xlsx")
 
 # Processed data
 EMBEDDINGS_PARQUET = DATA_DIR / "embeddings_with_labels.parquet"
