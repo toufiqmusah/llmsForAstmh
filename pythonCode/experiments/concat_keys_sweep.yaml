@@ -1,0 +1,62 @@
+method: random
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  LLM_name:
+    distribution: categorical
+    values:
+      - all-mpnet-base-v1
+      - all-mpnet-base-v2
+      - gtr-t5-xxl
+      - multi-qa-mpnet-base-dot-v1
+      - multi-qa-mpnet-base-cos-v1
+      - all-distilroberta-v1
+      - gtr-t5-base
+  augmentation:
+    distribution: categorical
+    values:
+      - None
+  batch_size:
+    distribution: categorical
+    values:
+      - 64
+      - 128
+      - 512
+      - 1024
+  classes:
+    distribution: categorical
+    values:
+      - 17
+  layer_dims:
+    distribution: categorical
+    values:
+      - 500 500 500
+      - 1000 1000 1000
+      - 1000 750 500 250 50
+      - 2000 1000 500 100 50
+  learning_rate:
+    distribution: uniform
+    max: 0.01
+    min: 1e-05
+  num_aug_words:
+    distribution: categorical
+    values:
+      - 0
+  temperature:
+    distribution: uniform
+    max: 1
+    min: 0.5
+  w0:
+    distribution: categorical
+    values:
+      - 0
+      - 1
+      - 2
+  w1:
+    distribution: categorical
+    values:
+      - 0
+      - 1
+      - 2
+program: train_concat_kw.py

@@ -1,0 +1,36 @@
+method: random
+metric:
+  goal: minimize
+  name: val_loss
+parameters:
+  classes:
+    distribution: categorical
+    values:
+      - 17
+  comb_layer_dims:
+    distribution: categorical
+    values:
+      - 500 50 25
+  embed_layer_dims:
+    distribution: categorical
+    values:
+      - 500 500 500
+  kw_layer_dims:
+    distribution: categorical
+    values:
+      - 500 500 500
+  learning_rate:
+    distribution: uniform
+    max: 0.01
+    min: 1e-05
+  w0:
+    distribution: categorical
+    values:
+      - 0
+      - 1
+  w1:
+    distribution: categorical
+    values:
+      - 0
+      - 1
+program: train_w_keys.py

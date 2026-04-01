@@ -1,0 +1,21 @@
+method: random
+metric:
+  goal: minimize
+  name: total_val_loss
+parameters:
+  classes:
+    distribution: categorical
+    values:
+      - 17
+  layer_dims:
+    distribution: categorical
+    values:
+      - 500 500 500
+  learning_rate:
+    distribution: uniform
+    max: 0.01
+    min: 1e-05
+  alpha:
+    max: 40
+    min: 0 
+program: train.py
