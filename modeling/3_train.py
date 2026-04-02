@@ -231,33 +231,29 @@ def main():
     # Overall accuracy
     overall_acc = (all_pred_classes == all_targets).float().mean().item()
     
-    # Important-class accuracy (if using important loss, compute this)
-    if args.use_important_loss:
-        # Get important class indices
-        label_to_idx = pd.Series(
-            df["label_idx"].values, index=df["shortMergedCat"].values
-        ).to_dict()
-        important_indices = [
-            label_to_idx[cat] for cat in IMPORTANT_CATEGORIES if cat in label_to_idx
-        ]
-        important_set = set(important_indices)
-        
-        # Filter to only samples where target is in important classes
-        important_mask = torch.tensor(
-            [t.item() in important_set for t in all_targets],
-            dtype=torch.bool
-        )
-        
-        if important_mask.any():
-            important_acc = (
-                all_pred_classes[important_mask] == all_targets[important_mask]
-            ).float().mean().item()
-            num_important_samples = important_mask.sum().item()
-        else:
-            important_acc = 0.0
-            num_important_samples = 0
+    # Important-class accuracy (always compute, regardless of loss function used)
+    # Get important class indices
+    label_to_idx = pd.Series(
+        df["label_idx"].values, index=df["shortMergedCat"].values
+    ).to_dict()
+    important_indices = [
+        label_to_idx[cat] for cat in IMPORTANT_CATEGORIES if cat in label_to_idx
+    ]
+    important_set = set(important_indices)
+    
+    # Filter to only samples where target is in important classes
+    important_mask = torch.tensor(
+        [t.item() in important_set for t in all_targets],
+        dtype=torch.bool
+    )
+    
+    if important_mask.any():
+        important_acc = (
+            all_pred_classes[important_mask] == all_targets[important_mask]
+        ).float().mean().item()
+        num_important_samples = important_mask.sum().item()
     else:
-        important_acc = None
+        important_acc = 0.0
         num_important_samples = 0
 
     # Save config with metrics
@@ -269,7 +265,7 @@ def main():
         f.write(f"Learning rate: {args.lr}\n")
         f.write(f"Layer dims: {args.layer_dims}\n")
         f.write(f"Dropout: {args.dropout}\n")
-        f.write(f"Important categories: {args.use_important_loss}\n")
+        f.write(f"Use important loss: {args.use_important_loss}\n")
         f.write(f"Batch norm: {not args.no_batch_norm}\n")
         f.write(f"Layer norm: {args.use_layer_norm}\n")
         f.write(f"Residual: {not args.no_residual}\n")
@@ -277,14 +273,12 @@ def main():
         f.write(f"Activation: {args.activation}\n")
         f.write(f"\nValidation Results:\n")
         f.write(f"Overall accuracy: {overall_acc:.4f}\n")
-        if args.use_important_loss:
-            f.write(f"Important-class accuracy: {important_acc:.4f}\n")
-            f.write(f"Num important samples in validation: {num_important_samples}\n")
+        f.write(f"Important-class accuracy: {important_acc:.4f}\n")
+        f.write(f"Num important samples in validation: {num_important_samples}\n")
 
     print(f"\n✓ Results:")
     print(f"  Overall accuracy: {overall_acc:.4f}")
-    if args.use_important_loss:
-        print(f"  Important-class accuracy: {important_acc:.4f} ({num_important_samples} samples)")
+    print(f"  Important-class accuracy: {important_acc:.4f} ({num_important_samples} samples)")
 
 
 if __name__ == "__main__":

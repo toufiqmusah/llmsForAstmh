@@ -22,8 +22,8 @@ SPLITS_DIR = DATA_DIR / "splits"
 # Embedding config
 # EMBEDDING_MODEL = "all-mpnet-base-v2"
 # EMBEDDING_MODEL = "medicalai/ClinicalBERT"
-# EMBEDDING_MODEL = "lokeshch19/ModernPubMedBERT"
-EMBEDDING_MODEL = "google/embeddinggemma-300m"
+EMBEDDING_MODEL = "lokeshch19/ModernPubMedBERT"
+# EMBEDDING_MODEL = "google/embeddinggemma-300m"
 
 EMBEDDING_DIM = 768
 
