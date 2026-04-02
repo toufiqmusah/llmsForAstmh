@@ -2,6 +2,17 @@
 
 A streamlined, modular pipeline for training and evaluating abstract classifiers for the ASTMH conference.
 
+## ✨ What's New
+
+The classifier has been significantly improved with **modern deep learning best practices**:
+- ✅ **Batch Normalization** (default) for stable training
+- ✅ **Residual Connections** (default) for deeper networks  
+- ✅ **Feature Attention** (optional) for interpretability
+- ✅ **Better Regularization** with layer normalization options
+- ✅ **Flexible Activation Functions** (ReLU, GELU, ELU)
+
+📖 See [CLASSIFIER_IMPROVEMENTS.md](CLASSIFIER_IMPROVEMENTS.md) for detailed guides and recommended configurations.
+
 ## Overview
 
 This pipeline simplifies the previous approach with ~5 core scripts:
@@ -16,21 +27,22 @@ This pipeline simplifies the previous approach with ~5 core scripts:
 
 ```
 modeling/
-├── 1_prepare_data.py      # Load data & generate embeddings
-├── 2_create_splits.py     # Create k-fold splits
-├── 3_train.py             # Train classifier
-├── 4_predict.py           # Make predictions
-├── 5_evaluate.py          # Evaluate results
+├── 1_prepare_data.py              # Load data & generate embeddings
+├── 2_create_splits.py             # Create k-fold splits
+├── 3_train.py                     # Train classifier (with improved models)
+├── 4_predict.py                   # Make predictions
+├── 5_evaluate.py                  # Evaluate results
+├── CLASSIFIER_IMPROVEMENTS.md     # Guide to new classifier features
 ├── configs/
-│   ├── config.py          # Configuration & paths
-│   └── data_utils.py      # Data loading & processing
+│   ├── config.py                  # Configuration & paths
+│   └── data_utils.py              # Data loading & processing
 ├── models/
-│   └── classifier.py      # ASTMHClassifier model
+│   └── classifier.py              # ASTMHClassifier model (improved)
 ├── loss/
-│   └── custom_loss.py     # Custom loss for important categories
-├── data/                  # Processed data & splits
-├── logs/                  # Training logs
-└── models/                # Saved model checkpoints
+│   └── custom_loss.py             # Custom loss for important categories
+├── data/                          # Processed data & splits
+├── logs/                          # Training logs
+└── models/                        # Saved model checkpoints
 ```
 
 ## Quick Start
@@ -63,12 +75,30 @@ Options:
 
 ### 3. Train Classifier
 
-Train on each fold (repeat for each fold 0-4):
+Two options available:
 
+#### Option A: Neural Network (PyTorch Lightning)
 ```bash
 python 3_train.py --fold 0
 ```
 
+#### Option B: XGBoost (Recommended for avoiding overfitting)
+```bash
+python 3_train_xgboost.py --fold 0
+```
+
+**Which to choose?**
+- **XGBoost**: Better generalization, naturally avoids overfitting, faster, no GPU needed
+- **PyTorch**: More flexible, can incorporate attention mechanisms, good for custom losses
+
+**For overfitting issues**: Try XGBoost first - see [XGBOOST_GUIDE.md](XGBOOST_GUIDE.md)
+
+#### PyTorch Options:
+- `--fold`: Fold number (required)
+- `--epochs`: Number of epochs (default: 200)
+- `--batch_size`: Batch size (default: 1024)
+- `--lr`: Learning rate (default: 1e-4)
+- `--layer_dims`: Hidden layer dimensions (default: 512 256)
 Options:
 - `--fold`: Fold number (required)
 - `--epochs`: Number of epochs (default: 200)
@@ -80,20 +110,59 @@ Options:
 - `--wandb_project`: WandB project name (optional)
 - `--wandb_name`: WandB run name (optional)
 - `--devices`: GPU devices (default: "0")
+- `--no_batch_norm`: Disable batch normalization
+- `--use_layer_norm`: Use layer normalization instead of batch norm
+- `--no_residual`: Disable residual connections
+- `--use_attention`: Enable feature attention mechanism
+- `--activation`: Activation function (relu|gelu|elu, default: relu)
 
 **Output**: `models/fold_*/model.pt` and `models/fold_*/config.txt`
 
 Examples:
 ```bash
-# Basic training
+# Basic training (uses batch norm & residual by default)
 python 3_train.py --fold 0
 
 # With custom loss and WandB logging
 python 3_train.py --fold 0 --use_important_loss --wandb_project MyProject --wandb_name fold_0
 
-# Custom architecture
-python 3_train.py --fold 0 --layer_dims 768 512 256 --lr 5e-5 --epochs 100
+# Advanced: deeper network with attention
+python 3_train.py --fold 0 --layer_dims 768 512 512 256 --use_attention
+
+# Experimental: GELU activation with layer norm
+python 3_train.py --fold 0 --activation gelu --use_layer_norm
+
+# Lightweight: shallow model without residual connections
+python 3_train.py --fold 0 --layer_dims 256 --no_residual --dropout 0.3
 ```
+
+See [CLASSIFIER_IMPROVEMENTS.md](CLASSIFIER_IMPROVEMENTS.md) for detailed configuration recommendations.
+
+#### XGBoost Options:
+- `--depth`: Max tree depth (default: 6)
+- `--lr`: Learning rate (default: 0.1)
+- `--subsample`: Row sampling rate (default: 0.8)
+- `--colsample`: Feature sampling rate (default: 0.8)
+- `--l2`: L2 regularization (default: 1.0)
+- `--num_rounds`: Boosting rounds (default: 500)
+- `--early_stopping`: Early stopping patience (default: 50)
+
+XGBoost Examples:
+```bash
+# Basic training (recommended)
+python 3_train_xgboost.py --fold 0
+
+# Better generalization (if overfitting)
+python 3_train_xgboost.py --fold 0 --depth 4 --subsample 0.7 --colsample 0.7 --l2 2.0
+
+# Lightweight (fast training)
+python 3_train_xgboost.py --fold 0 --depth 4 --num_rounds 200
+
+# More complex model (if underfitting)
+python 3_train_xgboost.py --fold 0 --depth 8 --subsample 0.9 --colsample 0.9
+```
+
+See [XGBOOST_GUIDE.md](XGBOOST_GUIDE.md) for detailed tuning guide.
 
 ### 4. Make Predictions
 

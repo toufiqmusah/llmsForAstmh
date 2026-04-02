@@ -78,7 +78,7 @@ class GreenCatNLLLoss(nn.Module):
         shortMergedCatsToVet2026 = \
             ['Clinical Tropical Medicine', 'Global Health - Other', 
              'Malaria - Antimalarial Resistance', 
-             'Malaria - Diagnosis', 'Malaria - Drug Dev', 'Trials', 'Malaria - Elimination', 
+             'Malaria - Diagnosis', 'Malaria - Drug Dev, Trials', 'Malaria - Elimination', 
              'Malaria - Epidemiology', 'Malaria - Genetics', 'Malaria - Immunology', 
              'Malaria - Parasite Biology', 'Malaria - Pathogenesis', 'Malaria - Prevention',  
              'Malaria - Vaccines', 'Malaria – Surveillance', 'NTDs Control', 'Elimination', 
