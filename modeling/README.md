@@ -29,17 +29,24 @@ This pipeline simplifies the previous approach with ~5 core scripts:
 modeling/
 ├── 1_prepare_data.py              # Load data & generate embeddings
 ├── 2_create_splits.py             # Create k-fold splits
-├── 3_train.py                     # Train classifier (with improved models)
-├── 4_predict.py                   # Make predictions
-├── 5_evaluate.py                  # Evaluate results
-├── CLASSIFIER_IMPROVEMENTS.md     # Guide to new classifier features
+├── 3_train.py                     # Train classifier (PyTorch)
+├── 3_train_xgboost.py             # Train classifier (XGBoost)
+├── 4_predict_test.py              # Make predictions on test data (NEW)
+├── 5_evaluate.py                  # Evaluate validation results
+├── CLASSIFIER_IMPROVEMENTS.md     # Guide to neural net features
+├── XGBOOST_GUIDE.md               # XGBoost tuning guide
+├── XGBOOST_QUICKSTART.md          # XGBoost quick start
+├── PYTORCH_VS_XGBOOST.md          # Comparison & recommendations
+├── PREDICTION_GUIDE.md            # Test prediction workflow (NEW)
+├── IMPORTANT_LOSS_FIX.md          # Important category loss guide
 ├── configs/
 │   ├── config.py                  # Configuration & paths
 │   └── data_utils.py              # Data loading & processing
 ├── models/
-│   └── classifier.py              # ASTMHClassifier model (improved)
+│   ├── classifier.py              # PyTorch classifier
+│   ├── xgboost_classifier.py      # XGBoost wrapper
 ├── loss/
-│   └── custom_loss.py             # Custom loss for important categories
+│   └── custom_loss.py             # Important category loss
 ├── data/                          # Processed data & splits
 ├── logs/                          # Training logs
 └── models/                        # Saved model checkpoints
@@ -164,25 +171,41 @@ python 3_train_xgboost.py --fold 0 --depth 8 --subsample 0.9 --colsample 0.9
 
 See [XGBOOST_GUIDE.md](XGBOOST_GUIDE.md) for detailed tuning guide.
 
-### 4. Make Predictions
+### 4. Make Predictions on Test Data
 
-Generate predictions on validation sets (repeat for each fold):
+Make predictions on new test data (requires embeddings pre-generated):
 
 ```bash
-python 4_predict.py --fold 0
+# Aggregate predictions from all folds (RECOMMENDED)
+python 4_predict_test.py --test_data data/test_embeddings.parquet \
+                         --all_folds \
+                         --output_dir results/test_predictions/
+
+# Or: predict with single fold
+python 4_predict_test.py --test_data data/test_embeddings.parquet \
+                         --fold 0 \
+                         --output_dir results/test_predictions/
 ```
 
-Options:
-- `--fold`: Fold number (required)
-- `--output_dir`: Output directory (default: results/)
+**Input Requirements:**
+- Test embeddings must be pre-computed (step 0, before pipeline)
+- Parquet file with 768-dim embedding columns
+- Optional: labels, titles, abstract text for detailed results
 
 **Output**: 
-- `results/fold_*/predictions.parquet` - Detailed predictions
-- `results/fold_*/summary.txt` - Fold-level summary
+- `test_predictions.xlsx` - Detailed predictions with top 2 choices
+- `confusion_matrix.png` - Visualization (like old code)
+- `confusion_matrix.csv` - Confusion matrix table
+- `classification_report.txt` - Per-class metrics
+- `summary.txt` - Overall accuracy metrics
 
-### 5. Evaluate Results
+📖 See [PREDICTION_GUIDE.md](PREDICTION_GUIDE.md) for detailed workflow and examples.
 
-Aggregate predictions from all folds and compute metrics:
+**Important**: Test embeddings should be generated **before** the pipeline using the same embedding model as training data.
+
+### 5. Evaluate Validation Results
+
+Aggregate validation predictions from all folds (optional, for analyzing val performance):
 
 ```bash
 python 5_evaluate.py
