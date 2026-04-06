@@ -275,7 +275,6 @@ class ASTMHClassifier(LightningModule):
             mode="min", 
             factor=0.5, 
             patience=10, 
-            verbose=True,
             min_lr=1e-6
         )
         return {
